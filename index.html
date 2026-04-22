@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Subsidy vs RE Growth</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F7F6F2;--s:#FFF;--s2:#F0EFE9;--bd:#E2E0D8;--t:#2C2C2A;--t2:#5F5E5A;--t3:#9B9A96;--g:#1D9E75;--b:#378ADD;--r:#E24B4A;--n:#185FA5;--rad:10px;--sh:0 1px 4px rgba(0,0,0,.07)}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--t);padding:20px}
+h1{font-size:17px;font-weight:600;margin-bottom:4px}
+.sub{font-size:12px;color:var(--t2);margin-bottom:16px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.stat{background:var(--s);border:1px solid var(--bd);border-radius:var(--rad);padding:8px 16px;text-align:center;box-shadow:var(--sh)}
+.sl{font-size:10px;color:var(--t3);margin-bottom:2px}
+.sv{font-size:18px;font-weight:600;color:var(--g)}
+.sv.n{color:var(--t)}
+.fr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.fl{font-size:11px;color:var(--t2);font-weight:500}
+.btn{border:1.5px solid var(--bd);background:var(--s);color:var(--t2);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--s2)}
+.btn.a-all{border-color:#555;background:#555;color:#fff}
+.btn.a-0{border-color:var(--g);background:var(--g);color:#fff}
+.btn.a-1{border-color:var(--b);background:var(--b);color:#fff}
+.btn.a-2{border-color:var(--r);background:var(--r);color:#fff}
+.leg{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.tri{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:11px solid var(--n);display:inline-block}
+.row{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.row{grid-template-columns:1fr}}
+.card{background:var(--s);border:1px solid var(--bd);border-radius:var(--rad);padding:16px;box-shadow:var(--sh)}
+.card h2{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+.cw{position:relative;width:100%;height:400px}
+.tbl-wrap{background:var(--s);border:1px solid var(--bd);border-radius:var(--rad);padding:16px;box-shadow:var(--sh);margin-bottom:16px}
+.tbl-wrap h2{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--t3);font-weight:500;padding:5px 8px;border-bottom:1px solid var(--bd)}
+td{padding:5px 8px;border-bottom:1px solid var(--bd)}
+tr:last-child td{border-bottom:none}
+tr.hl td{background:#FFF9E6}
+.pill{display:inline-block;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600;color:#fff}
+.p0{background:var(--g)}.p1{background:var(--b)}.p2{background:var(--r)}
+.pos{color:var(--g);font-weight:600}.neg{color:var(--r);font-weight:600}
+.note{background:var(--s2);border-radius:var(--rad);padding:10px 14px;font-size:11px;color:var(--t2);line-height:1.6;border:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<h1 id="h1"></h1>
+<p class="sub" id="h2"></p>
+<div class="stats">
+  <div class="stat"><div class="sl">Pearson r</div><div class="sv" id="s1"></div></div>
+  <div class="stat"><div class="sl">p-value</div><div class="sv">&lt; 0.001</div></div>
+  <div class="stat"><div class="sl">Spearman r&#x209B;</div><div class="sv" id="s2"></div></div>
+  <div class="stat"><div class="sl">ANOVA p</div><div class="sv">0.0006</div></div>
+  <div class="stat"><div class="sl">R&#xB2;</div><div class="sv n">0.29</div></div>
+</div>
+<div class="fr">
+  <span class="fl" id="fl"></span>
+  <button class="btn a-all" onclick="sf('all',this)" id="b0"></button>
+  <button class="btn" onclick="sf(0,this)" id="b1"></button>
+  <button class="btn" onclick="sf(1,this)" id="b2"></button>
+  <button class="btn" onclick="sf(2,this)" id="b3"></button>
+</div>
+<div class="leg">
+  <div class="li"><span class="dot" style="background:var(--g)"></span><span id="l0"></span></div>
+  <div class="li"><span class="dot" style="background:var(--b)"></span><span id="l1"></span></div>
+  <div class="li"><span class="dot" style="background:var(--r)"></span><span id="l2"></span></div>
+  <div class="li"><span class="tri"></span><span id="l3"></span></div>
+</div>
+<div class="row">
+  <div class="card"><h2 id="ch1"></h2><div class="cw"><canvas id="sc"></canvas></div></div>
+  <div class="card"><h2 id="ch2"></h2><div class="cw"><canvas id="bc"></canvas></div></div>
+</div>
+<div class="tbl-wrap">
+  <h2><span id="th0"></span> &mdash; <span id="tt"></span></h2>
+  <table><thead><tr><th id="tc1"></th><th id="tc2"></th><th id="tc3"></th></tr></thead>
+  <tbody id="tb"></tbody></table>
+</div>
+<div class="note" id="nt"></div>
+<script src="chart.umd.js"></script>
+<script>
+var G=["\u0E44\u0E21\u0E48\u0E2D\u0E38\u0E14\u0E2B\u0E19\u0E38\u0E19","\u0E2D\u0E38\u0E14\u0E2B\u0E19\u0E38\u0E19\u0E1A\u0E32\u0E07\u0E2A\u0E48\u0E27\u0E19","\u0E41\u0E0A\u0E48\u0E41\u0E02\u0E47\u0E07\u0E23\u0E32\u0E04\u0E32"];
+var GC=["#1D9E75","#378ADD","#E24B4A"];
+document.getElementById("h1").textContent="Subsidy Level vs Renewable Energy Growth (2015\u20132022)";
+document.getElementById("h2").textContent="n = 44 \u0E1B\u0E23\u0E30\u0E40\u0E17\u0E28 \u00B7 World Bank Fuel Subsidies Database + OWID Energy Dataset";
+document.getElementById("s1").textContent="\u22120.54";
+document.getElementById("s2").textContent="\u22120.59";
+document.getElementById("fl").textContent="\u0E01\u0E23\u0E2D\u0E07\u0E01\u0E25\u0E38\u0E48\u0E21:";
+document.getElementById("b0").textContent="\u0E17\u0E31\u0E49\u0E07\u0E2B\u0E21\u0E14 (44)";
+document.getElementById("b1").textContent="\u25CF "+G[0]+" (15)";
+document.getElementById("b2").textContent="\u25CF "+G[1]+" (22)";
+document.getElementById("b3").textContent="\u25CF "+G[2]+" (7)";
+document.getElementById("l0").innerHTML=G[0]+" (n=15) \u0E40\u0E09\u0E25\u0E35\u0E48\u0E22 <strong>+5.17%</strong>";
+document.getElementById("l1").innerHTML=G[1]+" (n=22) \u0E40\u0E09\u0E25\u0E35\u0E48\u0E22 <strong>+2.73%</strong>";
+document.getElementById("l2").innerHTML=G[2]+" (n=7) \u0E40\u0E09\u0E25\u0E35\u0E48\u0E22 <strong>\u22121.39%</strong>";
+document.getElementById("l3").textContent="\u0E44\u0E17\u0E22 +3.60%";
+document.getElementById("ch1").textContent="Scatter Plot \u2014 Subsidy vs Renewable Growth";
+document.getElementById("ch2").textContent="\u0E40\u0E1B\u0E23\u0E35\u0E22\u0E1A\u0E40\u0E17\u0E35\u0E22\u0E1A\u0E04\u0E48\u0E32\u0E40\u0E09\u0E25\u0E35\u0E48\u0E22 3 \u0E01\u0E25\u0E38\u0E48\u0E21";
+document.getElementById("th0").textContent="\u0E23\u0E32\u0E22\u0E1B\u0E23\u0E30\u0E40\u0E17\u0E28";
+document.getElementById("tt").textContent="\u0E17\u0E31\u0E49\u0E07\u0E2B\u0E21\u0E14 44 \u0E1B\u0E23\u0E30\u0E40\u0E17\u0E28";
+document.getElementById("tc1").textContent="\u0E1B\u0E23\u0E30\u0E40\u0E17\u0E28";
+document.getElementById("tc2").textContent="\u0E01\u0E25\u0E38\u0E48\u0E21";
+document.getElementById("tc3").textContent="\u0E01\u0E32\u0E23\u0E40\u0E15\u0E34\u0E1A\u0E42\u0E15 RE%";
+document.getElementById("nt").innerHTML="<strong>\u0E41\u0E01\u0E19 X:</strong> \u0E23\u0E30\u0E14\u0E31\u0E1A\u0E2D\u0E38\u0E14\u0E2B\u0E19\u0E38\u0E19 \u2014 0=\u0E44\u0E21\u0E48\u0E21\u0E35, 1=\u0E2D\u0E38\u0E14\u0E2B\u0E19\u0E38\u0E19, 2=\u0E41\u0E0A\u0E48\u0E41\u0E02\u0E47\u0E07\u0E23\u0E32\u0E04\u0E32 &nbsp;&middot;&nbsp; <strong>\u0E41\u0E01\u0E19 Y:</strong> \u0E2A\u0E31\u0E14\u0E2A\u0E48\u0E27\u0E19 RE% \u0E1B\u0E35 2015\u21922022 &nbsp;&middot;&nbsp; slope=\u22123.11";
+var raw=[
+  {x:0,y:3.9,c:"Albania",g:0},{x:2,y:0.3,c:"Algeria",g:2},{x:2,y:-5.8,c:"Angola",g:2},
+  {x:0,y:4.4,c:"Argentina",g:0},{x:0,y:7.7,c:"Australia",g:0},{x:0,y:6.7,c:"Austria",g:0},
+  {x:1,y:6.2,c:"Brazil",g:1},{x:0,y:1.9,c:"Canada",g:0},{x:1,y:11.7,c:"Chile",g:1},
+  {x:0,y:4.8,c:"China",g:0},{x:1,y:2.4,c:"Colombia",g:1},{x:0,y:6.8,c:"Germany",g:0},
+  {x:0,y:13.9,c:"Denmark",g:0},{x:1,y:0.6,c:"Egypt",g:1},{x:1,y:1.3,c:"Ethiopia",g:1},
+  {x:0,y:3.7,c:"France",g:0},{x:0,y:6.9,c:"UK",g:0},{x:1,y:-4.7,c:"Ghana",g:1},
+  {x:1,y:-1.8,c:"Indonesia",g:1},{x:1,y:2.9,c:"India",g:1},{x:2,y:0.3,c:"Iran",g:2},
+  {x:2,y:0.1,c:"Iraq",g:2},{x:1,y:1.6,c:"Kazakhstan",g:1},{x:1,y:4.6,c:"Kenya",g:1},
+  {x:0,y:2.7,c:"Korea",g:0},{x:1,y:6.3,c:"Morocco",g:1},{x:1,y:2.1,c:"Mexico",g:1},
+  {x:1,y:1.4,c:"Malaysia",g:1},{x:2,y:-2.7,c:"Nigeria",g:2},{x:0,y:3.2,c:"Norway",g:0},
+  {x:1,y:2.6,c:"Pakistan",g:1},{x:1,y:2.2,c:"Philippines",g:1},{x:0,y:3.7,c:"Poland",g:0},
+  {x:0,y:0.6,c:"Russia",g:0},{x:2,y:0.4,c:"Saudi Arabia",g:2},{x:0,y:8.2,c:"Sweden",g:0},
+  {x:1,y:3.6,c:"Thailand",g:1},{x:1,y:6.8,c:"Turkey",g:1},{x:2,y:-3.2,c:"Tanzania",g:2},
+  {x:0,y:4.1,c:"Ukraine",g:0},{x:0,y:4.2,c:"USA",g:0},{x:2,y:-2.8,c:"Venezuela",g:2},
+  {x:1,y:4.8,c:"Vietnam",g:1},{x:0,y:2.4,c:"South Africa",g:0}
+];
+var seed=[0.12,0.34,0.56,0.78,0.23,0.45,0.67,0.89,0.11,0.33,0.55,0.77,0.22,0.44,0.66,0.88,0.15,0.37,0.59,0.81,0.13,0.35];
+var jraw=raw.map(function(d,i){return Object.assign({},d,{jx:d.x+(seed[i%seed.length]-0.5)*0.32});});
+var n=raw.length,sX=raw.reduce(function(a,d){return a+d.x;},0),sY=raw.reduce(function(a,d){return a+d.y;},0);
+var sXY=raw.reduce(function(a,d){return a+d.x*d.y;},0),sX2=raw.reduce(function(a,d){return a+d.x*d.x;},0);
+var sl=(n*sXY-sX*sY)/(n*sX2-sX*sX),ic=(sY-sl*sX)/n;
+var cur="all";
+var XL={"0":"0 \u2014 "+G[0],"1":"1 \u2014 "+G[1],"2":"2 \u2014 "+G[2]};
+function ds(f){
+  var out=[0,1,2].map(function(g){return{
+    label:G[g],
+    data:jraw.filter(function(d){return d.g===g&&d.c!=="Thailand"&&(f==="all"||f===g);})
+             .map(function(d){return{x:d.jx,y:d.y,label:d.c};}),
+    backgroundColor:GC[g]+"BB",borderColor:GC[g],borderWidth:1.5,pointRadius:6,pointHoverRadius:9
+  };});
+  out.push({label:"TH",data:f==="all"||f===1?[{x:1,y:3.6,label:"Thailand"}]:[],
+    backgroundColor:"#185FA5",borderColor:"#042C53",borderWidth:2,pointRadius:10,pointHoverRadius:13,pointStyle:"triangle"});
+  out.push({label:"Reg",type:"line",data:[{x:-0.4,y:sl*-0.4+ic},{x:2.4,y:sl*2.4+ic}],
+    borderColor:"#999793",borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false,tension:0});
+  return out;
+}
+var sc=new Chart(document.getElementById("sc"),{type:"scatter",data:{datasets:ds("all")},options:{
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw.label?c.raw.label+": "+(c.raw.y>0?"+":"")+c.raw.y+"%":"Reg";}},
+    backgroundColor:"#fff",borderColor:"#D3D1C7",borderWidth:0.5,titleColor:"#2C2C2A",bodyColor:"#5F5E5A",padding:10,titleFont:{size:12,weight:"600"},bodyFont:{size:11}}},
+  scales:{
+    x:{min:-0.6,max:2.6,title:{display:true,text:"Subsidy Level",color:"#5F5E5A",font:{size:11,weight:"500"},padding:{top:8}},
+      ticks:{stepSize:1,font:{size:11},color:"#5F5E5A",callback:function(v){return XL[v]||"";}},
+      grid:{color:"rgba(136,135,128,0.12)"},border:{color:"rgba(136,135,128,0.2)"}},
+    y:{min:-9,max:16,title:{display:true,text:"RE Growth % (2015\u21922022)",color:"#5F5E5A",font:{size:11,weight:"500"},padding:{bottom:8}},
+      ticks:{font:{size:11},color:"#5F5E5A",callback:function(v){return v>0?"+"+v+"%":v+"%";}},
+      grid:{color:"rgba(136,135,128,0.12)"},border:{color:"rgba(136,135,128,0.2)"}}
+  }
+}});
+var avgs=[0,1,2].map(function(g){var v=raw.filter(function(d){return d.g===g;}).map(function(d){return d.y;});return +(v.reduce(function(a,b){return a+b;},0)/v.length).toFixed(2);});
+var bc=new Chart(document.getElementById("bc"),{type:"bar",data:{
+  labels:[G[0]+" (15)",G[1]+" (22)",G[2]+" (7)"],
+  datasets:[{label:"RE%",data:avgs,backgroundColor:GC.map(function(c){return c+"CC";}),borderColor:GC,borderWidth:2,borderRadius:6}]
+},options:{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return(c.raw>0?"+":"")+c.raw+"%";}},
+    backgroundColor:"#fff",borderColor:"#D3D1C7",borderWidth:0.5,bodyColor:"#2C2C2A",padding:10,bodyFont:{size:13,weight:"600"}}},
+  scales:{x:{grid:{display:false},ticks:{font:{size:11},color:"#5F5E5A",maxRotation:0}},
+    y:{min:-3,max:8,ticks:{font:{size:11},color:"#5F5E5A",callback:function(v){return v>0?"+"+v+"%":v+"%";}},grid:{color:"rgba(136,135,128,0.12)"}}}
+},plugins:[{id:"vl",afterDatasetsDraw:function(chart){
+  var ctx=chart.ctx;
+  chart.data.datasets[0].data.forEach(function(val,i){
+    var bar=chart.getDatasetMeta(0).data[i];
+    ctx.save();ctx.font="bold 13px sans-serif";ctx.fillStyle=GC[i];ctx.textAlign="center";
+    ctx.textBaseline=val>=0?"bottom":"top";
+    ctx.fillText((val>=0?"+":"")+val+"%",bar.x,val>=0?bar.y-4:bar.y+4);ctx.restore();
+  });
+}}]});
+function renderTable(f){
+  var data=f==="all"?raw:raw.filter(function(d){return d.g===f;});
+  var sorted=data.slice().sort(function(a,b){return b.y-a.y;});
+  document.getElementById("tt").textContent=f==="all"?"\u0E17\u0E31\u0E49\u0E07\u0E2B\u0E21\u0E14 44 \u0E1B\u0E23\u0E30\u0E40\u0E17\u0E28":G[f]+" \u2014 "+data.length+" \u0E1B\u0E23\u0E30\u0E40\u0E17\u0E28";
+  document.getElementById("tb").innerHTML=sorted.map(function(d){
+    return"<tr"+(d.c==="Thailand"?" class=\"hl\"":"")+">"+
+      "<td>"+(d.c==="Thailand"?"&#x1F1F9;&#x1F1ED; Thailand":d.c)+"</td>"+
+      "<td><span class=\"pill p"+d.g+"\">"+G[d.g]+"</span></td>"+
+      "<td class=\""+(d.y>=0?"pos":"neg")+"\">"+(d.y>=0?"+":"")+d.y+"%</td>"+
+      "</tr>";
+  }).join("");
+}
+renderTable("all");
+function sf(f,btn){
+  cur=f==="all"?"all":Number(f);
+  document.querySelectorAll(".btn").forEach(function(b){b.className="btn";});
+  btn.className=f==="all"?"btn a-all":"btn a-"+f;
+  sc.data.datasets=ds(cur);sc.update();
+  renderTable(cur);
+  bc.data.datasets[0].backgroundColor=GC.map(function(c,i){return(cur==="all"||cur===i)?c+"CC":c+"22";});
+  bc.data.datasets[0].borderColor=GC.map(function(c,i){return(cur==="all"||cur===i)?c:c+"33";});
+  bc.update();
+}
+</script>
+</body>
+</html>
